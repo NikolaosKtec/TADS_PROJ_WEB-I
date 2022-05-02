@@ -1,0 +1,28 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ProjWebTadsNikoApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="PROJ_WEB_TADS_NIKO" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="controller.ProjWebTadsNikoApplication" />
+    <option name="ALTERNATIVE_JRE_PATH" value="17" />
+    <option name="INCLUDE_PROVIDED_SCOPE" value="false" />
+    <additionalParameters>
+      <param>
+        <option name="enabled" value="true" />
+        <option name="name" value="DB_URL" />
+        <option name="value" value="jdbc:postgresql://localhost:5432/webloja" />
+      </param>
+      <param>
+        <option name="enabled" value="true" />
+        <option name="name" value="DB_PASSWORD" />
+        <option name="value" value="niko123" />
+      </param>
+      <param>
+        <option name="enabled" value="true" />
+        <option name="name" value="DB_USER" />
+        <option name="value" value="postgres" />
+      </param>
+    </additionalParameters>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
