@@ -14,6 +14,9 @@ public class Produtos {
         this.preco = preco;
         this.descricao = descricao;
     }
+    public Produtos(){
+
+    }
 
     public int getId() {
         return id;
