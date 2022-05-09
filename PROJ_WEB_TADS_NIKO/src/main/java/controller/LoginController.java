@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.ResultSet;
 
@@ -17,27 +19,14 @@ public class LoginController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @GetMapping(value = "/login")
-    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.setContentType("text/html");
-        var writer = response.getWriter();
-        writer.println("  <form action=\"/triagem\" method=\"get\"> <label for=\"email\">email</label> ");
-        writer.println(" <input name=\"email\" type=\"email\" required><label for=\"senha\">senha</label> ");
-        writer.println(" <input name=\"senha\" type=\"password\" required>");
-        writer.println(" <button type=\"submit\">enviar</button></form>");
-
-        writer.close();
-
-    }
-    @GetMapping(value="/triagem")
+    @PostMapping(value="/login")
     public void response(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("text/html");
         Pessoa ps = new Pessoa();
+        HttpSession session = request.getSession();
 
-        var writer = response.getWriter();
-        var senha = request.getParameter("senha");
         var email = request.getParameter("email");
+        var senha = request.getParameter("senha");
 
         final String sql = "SELECT * FROM Pessoa WHERE email= "+"'"+email+"'";
 
@@ -49,19 +38,30 @@ public class LoginController {
             ps.setElojista(rs.getBoolean("e_lojista"));
         });
 
+        int val_usu = 0;
 
-        var nome = ps.getNome();
+        if(ps.getEmail() != null){
+//valida usuario e salva a seção
+            if(ps.getSenha().equals(senha)){
+                if(session.isNew())
+                    session.setAttribute("usuario",ps);
 
-        if(ps.getEmail() == null){
-            writer.println("<div><p> usuário não tem cadastro!</p>");
-        }else if(ps.getSenha().equals(senha)){
-            writer.println("<div><p> Bem vindo!"+nome+"</p></div>");
-            if(!ps.getElojista())
-                response.sendRedirect("/lista_de_produtos");
-        }else{
-            writer.println("<div><p>Senha ou email incorretos!</p></div>");
+                val_usu = 1;
+            }
+        }else val_usu = -1;
+
+        switch (val_usu){
+            case 1:
+                if(ps.getElojista()){//verifica se é logista ou cliente
+                    response.sendRedirect("/lista_de_produtos");
+                }else{
+                    response.sendRedirect("/lista_de_produtos");
+                }
+                break;
+            default: //se não retorna ao login
+                response.sendRedirect("/index.html");
         }
-        writer.close();
+
     }
 
 }
