@@ -14,17 +14,16 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 @Controller
-public class Lista_de_produtos_controller {
-
+public class Logista_lista_de_produtos {
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    JdbcTemplate jdbcTemplate;
 
-    @GetMapping(value = "/lista_de_produtos")
-    public void pagina_do_cliente(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping("/produtos_logista")
+    public void getProdutos_loja(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
         HttpSession session = request.getSession(false);
         boolean e_logado = false;
-
+        boolean e_logista = false;
 
 
         var write = response.getWriter();
@@ -32,11 +31,12 @@ public class Lista_de_produtos_controller {
 
         try{
             e_logado = session.getAttribute("e_logado").equals(true);
+            e_logista  = session.getAttribute("e_logista").equals(true);
         }catch(NullPointerException e){
 
         }
 
-        if(e_logado) {
+        if(e_logado && e_logista) {
             ArrayList<Produtos> lista_de_produtos = new ArrayList<>();
             jdbcTemplate.query(sql, (ResultSet rs) -> {
                 do {
@@ -49,13 +49,13 @@ public class Lista_de_produtos_controller {
 
             });
 
-            write.println("<html><body><h1>lista de produtos</h1>");
+            write.println("<html><body> <h1>lista de produtos</h1>");
             write.println("<table>  <tr>\n" +
                     "    <th>Produto</th>\n" +
                     "    <th>Desc</th>\n" +
                     "    <th>Preco</th>\n" +
                     "    <th>Quantidade</th>\n" +
-                    "    <th>Adicionar</th>\n" +
+                    "    <th>Id</th>\n" +
                     "  </tr>");
 
             for (var item : lista_de_produtos) {
@@ -73,16 +73,15 @@ public class Lista_de_produtos_controller {
                 write.println(item.getQuantidade());
                 write.println("</td>");
                 write.println("<td>");
-                write.println("<a href='/add_carrinho?id=" + item.getId() + "'>Adicionar</a>");
+                write.println("<td>" + item.getId() + ">Adicionar</td>");
                 write.println("</td>");
                 write.println("</tr>");
             }
-            write.println("</table> <a href=\"/carrinho\">ver carrinho<a/>");
+            write.println("</table> <a href=\"/portal_do_logista.html\">cadastrar produtos<a/>");
             write.println("</body></html>");
             write.close();
         }else{
             response.sendRedirect("/index.html");
         }
-
     }
 }

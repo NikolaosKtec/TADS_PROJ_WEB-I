@@ -14,6 +14,8 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+
+import java.util.List;
 import java.util.StringTokenizer;
 
 @Controller
@@ -22,13 +24,21 @@ public class CarrinhoController {
     private JdbcTemplate jdbcTemplate;
 
     @GetMapping(value = "/carrinho")
-    public void carrinho(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void carrinho(HttpServletRequest request, HttpServletResponse response) throws IOException{
+
         response.setContentType("text/html");
         Produtos p = new Produtos();
-        ArrayList <Produtos> lista_carrinho = new ArrayList<>();
-        HttpSession session = request.getSession(false);
 
-        if(session != null){
+        HttpSession session = request.getSession();
+        boolean e_logado = false;
+
+        try{
+            e_logado = session.getAttribute("e_logado").equals(true);
+        }catch(NullPointerException e){
+
+        }
+
+        if(e_logado){
             var write = response.getWriter();
             boolean achou = false;
             String sql = "SELECT * FROM Produtos WHERE id = ";
@@ -46,49 +56,55 @@ public class CarrinhoController {
             carrinho.setMaxAge(60*60*24*7);
 
             Cookie[] requestCookies = request.getCookies();
-            for (var item: requestCookies){
-                if(item.getName().equals("carrinho")){
-                    achou = true;
-                    carrinho = item;
+            if (requestCookies != null) {
+                for (var item: requestCookies){
+                    if(item.getName().equals("carrinho")){
+                        achou = true;
+                        carrinho = item;
+                        break;
+                    }
                 }
             }
+
+
             if(achou) {
                 StringTokenizer tokenizer = new StringTokenizer(carrinho.getValue(), "|");
+                ArrayList<Produtos> lista_carrinho = new ArrayList<>();
                 while (tokenizer.hasMoreTokens()) {
-                    sql = sql + (tokenizer.nextToken());
+//                    List<Produtos> produtos = produtoDao.listarProdutosPorId(Integer.parseInt(tokenizer.nextToken()));
 
-                    jdbcTemplate.query(sql, (ResultSet rs) -> {
+                    jdbcTemplate.query(sql + (tokenizer.nextToken()), (ResultSet rs) -> {
                         //procura pelo id passado o produto
                         p.setNome(rs.getString("nome"));
                         p.setDescricao(rs.getString("descricao"));
                         p.setPreco(rs.getString("preco"));
                         p.setQuantidade(rs.getInt("quantidade"));
                         p.setId(rs.getInt("id"));
+
+                        lista_carrinho.add(p);
+
                     });
-                    lista_carrinho.add(p);
-                }
-                for(var item : lista_carrinho){
 
                     write.println("<tr>");
                     write.println("<td>");
-                    write.println(item.getNome());
+                    write.println(lista_carrinho.get(0).getNome());
                     write.println("</td>");
                     write.println("<td>");
-                    write.println(item.getDescricao());
+                    write.println(lista_carrinho.get(0).getDescricao());
                     write.println("</td>");
                     write.println("<td>");
-                    write.println(item.getPreco());
+                    write.println(lista_carrinho.get(0).getPreco());
                     write.println("</td>");
                     write.println("<td>");
-                    write.println(item.getQuantidade());
+                    write.println(lista_carrinho.get(0).getQuantidade());
                     write.println("</td>");
                     write.println("<td>");
-                    write.println("<a href='/removerCarrinho?id="+item.getId()+"'>Remover</a>");
+                    write.println("<a href='/removerCarrinho?id="+lista_carrinho.get(0).getId()+"'>Remover</a>");
                     write.println("</td>");
                     write.println("</tr>");
-
                 }
-                write.println("</table>");
+
+                write.println("</table> <a href=\"/lista_de_produtos\">ver produtos</a>");
                 write.println("</body></html>");
             }else{
                 write.println("carrinho Vazio!");

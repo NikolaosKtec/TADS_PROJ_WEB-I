@@ -22,15 +22,24 @@ public class Add_carrinho {
     JdbcTemplate jdbcTemplate;
 
     @GetMapping("/add_carrinho")
-    public void add_carrinho(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        HttpSession session = request.getSession(false);
-        Produtos p = new Produtos ();
-        Cookie[] requestCookies = request.getCookies();
+    public void add_carrinho(HttpServletRequest request, HttpServletResponse response) throws IOException,
+                                                                                        ServletException {
 
+        HttpSession session = request.getSession();
+
+        Produtos p = new Produtos();
+        Cookie[] requestCookies = request.getCookies();
+        boolean e_logado = false;
 
         String sql = "SELECT id FROM Produtos WHERE id = "+request.getParameter("id");
 
-        if(session != null){
+        try{
+            e_logado = session.getAttribute("e_logado").equals(true);
+        }catch(NullPointerException e){
+
+        }
+
+        if(e_logado){
             jdbcTemplate.query(sql ,(ResultSet rs) -> {
                 //procura pelo id passado o produto
 
@@ -40,21 +49,37 @@ public class Add_carrinho {
 
             Cookie carrinho = new Cookie("carrinho","");
             carrinho.setMaxAge(60*60*24*7);
-
+            boolean achouCarrinho = false;
 
             if(requestCookies != null){
                 for(var item: requestCookies){
                     if(item.getName().equals("carrinho")){
-                        var value = item.getValue();
-                        carrinho.setValue(value+p.getId()+"|");
+                        achouCarrinho = true;
+                        carrinho = item;
+                        break;
                     }
                 }
-            }else{
-                carrinho.setValue(p.getId()+"|");
+            }
+
+
+
+            String iff = String.valueOf(p.getId());
+                 
+            if (iff != null) {
+
+                if (achouCarrinho) {
+                    String value = carrinho.getValue();
+                    carrinho.setValue(value + p.getId() + "|");
+                } else {
+                    carrinho.setValue(p.getId() + "|");
+                }
+            }else {
+                response.addCookie(carrinho);
+                response.getWriter().println("Id inexistente");
             }
 
             response.addCookie(carrinho);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/carrinho");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/lista_de_produtos");
             dispatcher.forward(request, response);
 
         }else

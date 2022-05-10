@@ -23,7 +23,7 @@ public class LoginController {
     @PostMapping(value="/login")
     public void response(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Pessoa ps = new Pessoa();
-        HttpSession session = request.getSession();
+
 
         var email = request.getParameter("email");
         var senha = request.getParameter("senha");
@@ -43,9 +43,9 @@ public class LoginController {
         if(ps.getEmail() != null){
 //valida usuario e salva a seção
             if(ps.getSenha().equals(senha)){
-                if(session.isNew())
-                    session.setAttribute("usuario",ps);
-
+                 HttpSession session = request.getSession();
+                    session.setAttribute("e_logado",true);
+                    session.setAttribute("e_logista",ps.getElojista());
                 val_usu = 1;
             }
         }else val_usu = -1;
@@ -53,15 +53,24 @@ public class LoginController {
         switch (val_usu){
             case 1:
                 if(ps.getElojista()){//verifica se é logista ou cliente
-                    response.sendRedirect("/lista_de_produtos");
+
+                    response.sendRedirect("/produtos_logista");
                 }else{
                     response.sendRedirect("/lista_de_produtos");
                 }
                 break;
             default: //se não retorna ao login
-                response.sendRedirect("/index.html");
+                response.sendRedirect("/login_response");
         }
 
+    }
+
+    @GetMapping("/login_response")
+    public void lg_rs(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("text/html");
+        var write = response.getWriter();
+        write.println("<h1>usuario ou senha incorretos!</h1>");
+        write.println("<a href = \"/index.html\">Página login</a>");
     }
 
 }
