@@ -99,12 +99,13 @@ public class CarrinhoController {
                     write.println(lista_carrinho.get(0).getQuantidade());
                     write.println("</td>");
                     write.println("<td>");
-                    write.println("<a href='/removerCarrinho?id="+lista_carrinho.get(0).getId()+"'>Remover</a>");
+                    write.println("<a href= '/removercarrinho?id="+lista_carrinho.get(0).getId()+"'>Remover</a>");
                     write.println("</td>");
                     write.println("</tr>");
                 }
 
                 write.println("</table> <a href=\"/lista_de_produtos\">ver produtos</a>");
+                write.println(("<a href= '/logout'>Sair</a>"));
                 write.println("</body></html>");
             }else{
                 write.println("carrinho Vazio!");

@@ -1,5 +1,6 @@
 package controller;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.RequestDispatcher;
@@ -12,14 +13,19 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+@Controller
 public class Remove_carrinho {
 
-    @GetMapping("/removerCarrinho")
+    @GetMapping("/removercarrinho")
     public void remover_item(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         HttpSession session = request.getSession(false);
+
+        boolean e_logista = false;
         boolean e_logado = false;
+        int nao_achou = 0;
         var writer = response.getWriter();
         try {
+            e_logista = session.getAttribute("e_logista").equals(true);
             e_logado = session.getAttribute("e_logado").equals(true);
         } catch (NullPointerException e) {
 
@@ -51,17 +57,25 @@ public class Remove_carrinho {
                 while (tokenizer.hasMoreTokens()) {
 
                     elem_id = tokenizer.nextToken();
-
-                    if (elem_id != id_rem) {
+                    // elem_id != id_rem nao pega!
+                    if ((!elem_id.equals(id_rem)) || (nao_achou > 0)) {
 
                         contain_token += elem_id + "|";
-                    }
+                    }else nao_achou += 1 ;
                 }
                 carrinho.setValue(contain_token);
 
                 response.addCookie(carrinho);
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/carrinho");
                 dispatcher.forward(request, response);
+//
+//                if(e_logista){
+//                    RequestDispatcher dispatcher = request.getRequestDispatcher("/produtos_logista");
+//                    dispatcher.forward(request, response);
+//                }else{
+//
+//                }
+
 
             } else {
                 writer.println("<p> produto não encontrado!</p>");

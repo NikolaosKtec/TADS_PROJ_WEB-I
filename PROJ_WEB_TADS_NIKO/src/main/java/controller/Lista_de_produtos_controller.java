@@ -78,6 +78,7 @@ public class Lista_de_produtos_controller {
                 write.println("</tr>");
             }
             write.println("</table> <a href=\"/carrinho\">ver carrinho<a/>");
+            write.println(("<a href= '/logout'>Sair</a>"));
             write.println("</body></html>");
             write.close();
         }else{

@@ -73,11 +73,12 @@ public class Logista_lista_de_produtos {
                 write.println(item.getQuantidade());
                 write.println("</td>");
                 write.println("<td>");
-                write.println("<td>" + item.getId() + ">Adicionar</td>");
+                write.println("<a href='#'>remover</a>");
                 write.println("</td>");
                 write.println("</tr>");
             }
             write.println("</table> <a href=\"/portal_do_logista.html\">cadastrar produtos<a/>");
+            write.println(("<a href= '/logout'>Sair</a>"));
             write.println("</body></html>");
             write.close();
         }else{
